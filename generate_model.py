@@ -62,8 +62,8 @@ model.compile(loss='mean_squared_error', optimizer='adam')
 model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=100, batch_size=64)
 
 # Save the model
-Path("prediction_models/" + stock_symbol).mkdir(parents=True, exist_ok=True)
-model.save('prediction_models/' + stock_symbol + '/' + value_type + '.h5')
+Path("/home/sayuru/Projects/stock-management/stock-management-prediction/prediction_models/" + stock_symbol).mkdir(parents=True, exist_ok=True)
+model.save('/home/sayuru/Projects/stock-management/stock-management-prediction/prediction_models/' + stock_symbol + '/' + value_type + '.h5')
 
 # Predict next 30 days
 fut_inp = ds_test[-time_steps:].reshape(1, -1)
