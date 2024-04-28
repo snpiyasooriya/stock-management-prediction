@@ -1,10 +1,13 @@
+import os
 import sys
 
 import numpy as np
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
+from dotenv import load_dotenv
 
-
+# load environmental variables from .env
+load_dotenv()
 # Function to create dataset for LSTM model
 def create_dataset(dataset, step):
     x_test, y_test = [], []
@@ -69,7 +72,7 @@ if __name__ == "__main__":
     stock_symbol = sys.argv[1]
     # Convert space-separated string to list of floats
     input_data = list(map(float, sys.argv[2].split()))
-    model_path = '/home/sayuru/Projects/stock-management/stock-management-prediction/prediction_models/' + stock_symbol + '/Open.h5'
+    model_path = os.environ.get("MODEL_PATH") + stock_symbol + '/Open.h5'
     try:
         model = load_model(model_path)
     except Exception as e:

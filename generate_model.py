@@ -1,13 +1,15 @@
 import argparse
-
+import os
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
 from keras.layers import Dense, LSTM
 from pathlib import Path
+from dotenv import load_dotenv
 
+# load from .env file
+load_dotenv()
 
 # Function to create dataset for LSTM model
 def create_dataset(dataset, step):
@@ -27,8 +29,7 @@ args = parser.parse_args()
 stock_symbol = args.stock_symbol
 value_type = args.value_type
 # Load data from CSV
-data = pd.read_csv(
-    '/home/sayuru/Projects/stock-management/stock-management-backend/assets/uploads/historical_data/' + stock_symbol + '.csv')
+data = pd.read_csv(os.environ.get("CSV_PATH") + stock_symbol + '.csv')
 opn = data[[value_type]]
 ds = opn.values
 
@@ -62,8 +63,9 @@ model.compile(loss='mean_squared_error', optimizer='adam')
 model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=100, batch_size=64)
 
 # Save the model
-Path("/home/sayuru/Projects/stock-management/stock-management-prediction/prediction_models/" + stock_symbol).mkdir(parents=True, exist_ok=True)
-model.save('/home/sayuru/Projects/stock-management/stock-management-prediction/prediction_models/' + stock_symbol + '/' + value_type + '.h5')
+model_path = os.environ.get("MODEL_PATH")
+Path(model_path + stock_symbol).mkdir(parents=True, exist_ok=True)
+model.save(model_path + stock_symbol + '/' + value_type + '.h5')
 
 # Predict next 30 days
 fut_inp = ds_test[-time_steps:].reshape(1, -1)
@@ -87,20 +89,3 @@ for _ in range(30):
 # Combine predicted data with original data
 ds_new = ds_scaled.tolist()
 ds_new.extend(lst_output)
-
-
-# Plot the results
-# final_graph = normalizer.inverse_transform(ds_new).flatten()
-# start_index = len(ds_scaled) - len(ds_test) + time_steps + 1
-# end_index = start_index + len(lst_output)
-#
-# plt.plot(final_graph[start_index:])  # Plot actual values
-# plt.plot(np.arange(end_index, end_index + len(lst_output)),
-#          normalizer.inverse_transform(lst_output))  # Plot predicted values
-# plt.ylabel("Price")
-# plt.xlabel("Time")
-# plt.title("{0} prediction of next month open".format(stock_symbol))
-# plt.axhline(y=final_graph[-1], color='red', linestyle=':',
-#             label='NEXT 30D: {0}'.format(round(float(final_graph[-1]), 2)))
-# plt.legend()
-# plt.show()
